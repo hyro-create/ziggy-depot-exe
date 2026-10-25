@@ -83,7 +83,7 @@ def run() -> int:
         for x in p:
             print("  -", x)
         return 1
-    print("✔ Toutes les dépendances et ressources sont présentes.")
+    print("[OK] Toutes les dependances et ressources sont presentes.")
     return 0
 
 
