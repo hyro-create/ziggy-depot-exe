@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aide — Ziggy</title><link rel="icon" href="/static/favicon.ico">
+<style>
+:root{--bg:#f4efe3;--ink:#1b1812;--muted:#7a7263;--line:#d9d1bd;--card:#fbf8f0;--accent:#0a2a6b}
+@media (prefers-color-scheme:dark){:root{--bg:#14120e;--ink:#f1ebdc;--muted:#968d79;--line:#2d2a22;--card:#1c1a15;--accent:#82aaff}}
+body{background:var(--bg);color:var(--ink);font-family:'Instrument Sans',system-ui,'Segoe UI',sans-serif;margin:0;line-height:1.6}
+main{max-width:760px;margin:0 auto;padding:32px 22px 80px}
+h1{font-family:Georgia,'Fraunces',serif;font-weight:400;font-size:40px;margin:0 0 6px}h1 em{color:var(--accent)}
+h2{font-family:Georgia,'Fraunces',serif;font-weight:400;font-size:24px;margin:34px 0 8px;border-top:1px solid var(--line);padding-top:20px}
+code{background:var(--card);border:1px solid var(--line);padding:1px 6px;border-radius:6px;font-size:13px}
+a{color:var(--accent)}.small{color:var(--muted);font-size:14px}li{margin:4px 0}
+</style></head><body><main>
+<img src="/static/logo.png" alt="" width="56" height="56">
+<h1>Aide de <em>Ziggy</em></h1><p class="small"><a href="/">← Retour à Ziggy</a></p>
+
+<h2>1. Premiers pas : ajouter ta clé Gemini</h2>
+<ol><li>Crée une clé gratuite sur <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>.</li>
+<li>Dans Ziggy, clique sur l'engrenage ⚙ → « Intelligence artificielle — Gemini ».</li>
+<li>Colle la clé, clique sur <b>Enregistrer</b>, puis sur <b>Tester la connexion</b>. Le voyant doit passer à « Connecté ».</li>
+<li>Tu n'auras plus jamais à la ressaisir : elle est conservée sur ce PC, chiffrée par Windows.</li></ol>
+<p class="small">Les quotas gratuits dépendent du modèle et de ton compte. Si le voyant indique « Quota atteint », attends un peu ou choisis un autre modèle dans la liste.</p>
+
+<h2>2. Ce que Ziggy peut faire</h2>
+<ul><li>Organiser tes tâches, retenir ce que tu lui dis, programmer des rappels (qui survivent à la fermeture de Ziggy).</li>
+<li>Lire, créer et ranger des fichiers (Word, Excel, PowerPoint, PDF en lecture) dans ton dossier utilisateur.</li>
+<li>Météo, lecture de pages web publiques, presse-papiers, ouverture d'applications autorisées.</li>
+<li>Selon ta configuration : Gmail, Google Agenda/Drive, Outlook/OneDrive/To Do, Todoist, Notion, Spotify, Telegram (voir le fichier README).</li></ul>
+
+<h2>3. Sécurité : les confirmations</h2>
+<p>Pour les actions sensibles (envoyer un mail, écraser ou déplacer un fichier, supprimer un événement, verrouiller la session, envoyer un fichier sur OneDrive), Ziggy affiche une carte <b>« Confirmation requise »</b> : rien ne se passe tant que tu n'as pas cliqué sur Confirmer. Sur Telegram, réponds <code>/oui identifiant</code> ou <code>/non identifiant</code>.</p>
+<p>Ziggy ne peut pas exécuter de commandes libres sur ton PC, ne touche pas aux fichiers exécutables ou scripts, et n'a pas accès à ses propres données ni à tes dossiers de secrets (<code>.ssh</code>, etc.).</p>
+
+<h2>4. Tes données et les sauvegardes</h2>
+<p>Tout est dans <code>%LOCALAPPDATA%\Ziggy</code> (bouton « Ouvrir le dossier » dans Paramètres → Mémoire). Ce dossier n'est jamais modifié par une mise à jour de Ziggy, et la désinstallation te demande avant de le supprimer.</p>
+<ul><li><b>Sauvegarder la mémoire</b> : crée une copie dans le sous-dossier <code>backups</code>.</li>
+<li><b>Effacer l'historique</b> : supprime seulement les conversations.</li>
+<li><b>Supprimer toute la mémoire</b> : supprime aussi les souvenirs. Une sauvegarde automatique est créée avant.</li></ul>
+
+<h2>5. Dépannage</h2>
+<ul><li><b>« Clé manquante / invalide »</b> : ouvre Paramètres et ressaisis la clé.</li>
+<li><b>« Erreur réseau »</b> : vérifie Internet, le pare-feu ou le proxy.</li>
+<li><b>Le micro ne marche pas</b> : utilise Chrome ou Edge, autorise le micro (cadenas près de l'adresse) et vérifie ta connexion Internet : la dictée est un service en ligne du navigateur.</li>
+<li><b>Aucune voix française</b> : ajoute la langue française dans les paramètres de langue de Windows.</li>
+<li><b>Autre problème</b> : le journal est dans <code>%LOCALAPPDATA%\Ziggy\logs\ziggy.log</code> (il ne contient ni clés ni mots de passe).</li></ul>
+</main></body></html>

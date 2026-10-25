@@ -1,0 +1,18 @@
+# Jamais dans un dépôt : secrets et données personnelles
+.env
+*.dat
+token.json
+ms_token.json
+spotify_token.json
+credentials.json
+memoire.db
+*.db
+backups/
+logs/
+# Fichiers générés
+.venv/
+build/
+dist/
+installer_output/
+__pycache__/
+.pytest_cache/

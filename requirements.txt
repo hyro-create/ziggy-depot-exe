@@ -1,0 +1,29 @@
+# Dépendances d'exécution de Ziggy. Testé avec Python 3.12 ; versions bornées par version majeure pour éviter
+# qu'une mise à jour cassante n'entre à l'insu du projet.
+
+# --- Interface web locale ---
+flask>=3.0,<4              # routes de l'interface et de l'API locale
+waitress>=3.0,<4           # serveur WSGI de production (fiable sous Windows) à la place du serveur de développement de Flask
+
+# --- IA : API officielle Google Gemini ---
+google-genai>=2.0,<3       # SDK officiel Gemini (testé avec 2.31 : liste des modèles via supported_actions, erreurs APIError)
+httpx>=0.27,<1             # classement des erreurs réseau (déjà exigé par google-genai)
+python-dotenv>=1.0,<2      # lecture du .env des intégrations optionnelles
+requests>=2.31,<3          # météo Open-Meteo, pages web, Todoist, Notion, Telegram
+
+# --- Intégrations optionnelles (Google, Microsoft, Spotify) ---
+google-api-python-client>=2.100,<3
+google-auth>=2.30,<3
+google-auth-oauthlib>=1.2,<2
+msal>=1.28,<2
+spotipy>=2.24,<3
+
+# --- Lecture de documents et système ---
+python-docx>=1.1,<2        # Word
+openpyxl>=3.1,<4           # Excel
+python-pptx>=1.0,<2        # PowerPoint
+pypdf>=4.0,<6              # PDF
+pyperclip>=1.8,<2          # presse-papiers
+Pillow>=10.0,<13           # icône de la barre des tâches
+pystray>=0.19.5,<1         # icône de la barre des tâches (Windows)
+pywebview>=5.0,<7           # fenêtre application native (WebView2 Windows, WebKit macOS/Linux)

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="ziggy-token" content="__ZIGGY_TOKEN__">
+<meta name="ziggy-version" content="__ZIGGY_VERSION__">
+<title>Ziggy</title>
+<link rel="icon" href="/static/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=JetBrains+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --serif:'Fraunces', Georgia, serif;
+    --mono:'JetBrains Mono', ui-monospace, Consolas, monospace;
+    --sans:'Instrument Sans', system-ui, 'Segoe UI', sans-serif;
+    --bg:#f4efe3; --ink:#1b1812; --muted:#7a7263; --line:#d9d1bd; --card:#fbf8f0; --accent:#0a2a6b; --warm:#d4511b;
+    --ok:#2e7d32; --warn:#b26a00; --bad:#b3261e;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{--bg:#14120e; --ink:#f1ebdc; --muted:#968d79; --line:#2d2a22; --card:#1c1a15; --accent:#82aaff; --warm:#f06a35; --ok:#66bb6a; --warn:#ffb74d; --bad:#ef7b73}
+  }
+  *{box-sizing:border-box;margin:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);display:grid;grid-template-columns:1fr 300px}
+  .label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  [hidden]{display:none !important}
+  main{display:flex;flex-direction:column;height:100vh;min-width:0}
+  header{padding:22px 36px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px}
+  header .logo{width:56px;height:56px;flex:none}
+  header .titles{flex:1;min-width:0}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(28px,4vw,44px);line-height:1.05;margin-top:6px}
+  h1 em{color:var(--accent)}
+  .iconbtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;display:grid;place-items:center;padding:0}
+  .iconbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .iconbtn svg{width:22px;height:22px}
+  #banner{margin:16px 36px 0;padding:12px 16px;border:1px solid var(--warm);border-radius:10px;background:var(--card);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  #banner span{flex:1;min-width:200px}
+  #log{flex:1;overflow-y:auto;padding:24px 36px;display:flex;flex-direction:column;gap:18px}
+  .msg{max-width:720px;white-space:pre-wrap;line-height:1.55}
+  .msg .label{display:block;margin-bottom:4px}
+  .user{align-self:flex-end;text-align:right}
+  .user .body{background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px 14px 2px 14px;display:inline-block;text-align:left}
+  .model .body{font-family:var(--serif);font-size:18px}
+  #pending{padding:0 36px;display:flex;flex-direction:column;gap:8px}
+  .confirm{border:1px solid var(--warm);background:var(--card);border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .confirm .txt{flex:1;min-width:200px}
+  form{display:flex;gap:10px;padding:18px 36px 28px;border-top:1px solid var(--line)}
+  input[type=text],input[type=password],select{font:inherit;padding:12px 14px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;outline:none;min-width:0}
+  #q{flex:1;padding:14px 16px}
+  input:focus,select:focus{border-color:var(--accent)}
+  button.b{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--ink);background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:10px;cursor:pointer}
+  button.b.ghost{background:transparent;color:var(--ink)}
+  button.b.danger{background:transparent;color:var(--bad);border-color:var(--bad)}
+  button.b.on{background:var(--warm);border-color:var(--warm);color:#fff}
+  button.b.off,button.b:disabled{opacity:.45;cursor:not-allowed}
+  aside{border-left:1px solid var(--line);padding:28px 22px;overflow-y:auto;background:var(--card)}
+  aside h2{font-family:var(--serif);font-weight:400;font-size:26px;margin:8px 0 18px}
+  .task{padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .task small{display:block;font-family:var(--mono);color:var(--muted);font-size:11px;margin-top:3px}
+  .dots::after{content:'';animation:d 1.2s steps(4) infinite}
+  @keyframes d{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+
+  /* ---- Paramètres ---- */
+  #settings{position:fixed;inset:0;background:var(--bg);overflow-y:auto;z-index:20}
+  .sbar{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:16px 28px;display:flex;align-items:center;gap:16px;z-index:2}
+  .sbar h2{font-family:var(--serif);font-weight:400;font-size:30px;flex:1}
+  .swrap{max-width:780px;margin:0 auto;padding:24px 24px 80px;display:flex;flex-direction:column;gap:22px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+  .card h3{font-family:var(--serif);font-weight:400;font-size:24px;margin:6px 0 14px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+  .row>.grow{flex:1;min-width:180px}
+  .field{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+  .hint{font-size:13px;color:var(--muted);line-height:1.5}
+  .pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;padding:6px 12px;border:1px solid var(--line);border-radius:999px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--muted)}
+  .pill.ok .dot{background:var(--ok)}.pill.warn .dot{background:var(--warn)}.pill.bad .dot{background:var(--bad)}
+  .switch{display:flex;gap:12px;align-items:flex-start;margin:14px 0}
+  .switch input{width:20px;height:20px;margin-top:2px;accent-color:var(--accent)}
+  .switch b{font-weight:500;display:block}
+  .msgline{min-height:20px;font-size:14px;margin-top:8px;white-space:pre-wrap}
+  .msgline.ok{color:var(--ok)}.msgline.bad{color:var(--bad)}
+  .hist{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px;margin-top:10px}
+  .hist div{padding:6px 0;border-bottom:1px solid var(--line);white-space:pre-wrap}
+  .hist small{font-family:var(--mono);color:var(--muted);display:block}
+  input[type=range]{accent-color:var(--accent);flex:1;min-width:140px}
+  code{font-family:var(--mono);font-size:12px;background:var(--bg);padding:2px 6px;border-radius:6px;word-break:break-all}
+  #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;font-size:14px;z-index:40;max-width:90vw}
+  @media(max-width:800px){body{grid-template-columns:1fr}aside{display:none}header,#log,form,#pending{padding-left:16px;padding-right:16px}#banner{margin-left:16px;margin-right:16px}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <picture><source media="(prefers-color-scheme: dark)" srcset="/static/logo-light.png"><img class="logo" src="/static/logo.png" alt="Logo Ziggy (lotus)"></picture>
+    <div class="titles">
+      <div class="label">Solar · Ziggy · v__ZIGGY_VERSION__</div>
+      <h1>À votre <em>service</em>.</h1>
+    </div>
+    <button class="iconbtn" id="gear" aria-label="Ouvrir les paramètres" title="Paramètres">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </header>
+  <div id="banner" hidden>
+    <span><b>Clé Gemini manquante.</b> Ziggy ne peut pas répondre tant que tu n'as pas ajouté ta clé (gratuite) dans les paramètres.</span>
+    <button class="b" id="bannerBtn">Ouvrir les paramètres</button>
+  </div>
+  <div id="log"></div>
+  <div id="pending"></div>
+  <form id="f">
+    <button type="button" id="mic" class="b ghost">Micro</button>
+    <input type="text" id="q" placeholder="Que puis-je faire pour vous ?" autocomplete="off" autofocus>
+    <button type="button" id="spk" class="b ghost" title="Réponses vocales">Voix</button>
+    <button class="b">Envoyer</button>
+  </form>
+</main>
+<aside>
+  <div class="label">Planche I</div>
+  <h2>Tâches en cours</h2>
+  <div id="tasks"></div>
+</aside>
+
+<!-- ================= PARAMÈTRES ================= -->
+<div id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="stitle">
+  <div class="sbar">
+    <div><div class="label">Configuration</div><h2 id="stitle">Paramètres</h2></div>
+    <button class="b ghost" id="sclose">Fermer</button>
+  </div>
+  <div class="swrap">
+
+    <section class="card" id="sec-gemini">
+      <div class="label">Section A</div>
+      <h3>Intelligence artificielle — Gemini</h3>
+      <div class="row"><span class="pill" id="gpill"><span class="dot"></span><span id="glabel">…</span></span><span class="hint" id="gdetail"></span></div>
+      <div class="field">
+        <label class="label" for="gkey">Clé API Gemini</label>
+        <div class="row" style="margin:0">
+          <input type="password" id="gkey" class="grow" autocomplete="off" spellcheck="false" placeholder="Colle ta clé ici">
+          <button class="b ghost" id="gshow" type="button">Afficher</button>
+        </div>
+        <div class="hint" id="gsaved"></div>
+      </div>
+      <div class="row">
+        <button class="b" id="gsave">Enregistrer</button>
+        <button class="b ghost" id="gtest">Tester la connexion</button>
+        <button class="b danger" id="gdel">Supprimer la clé</button>
+      </div>
+      <div class="field">
+        <label class="label" for="gmodel">Modèle Gemini</label>
+        <div class="row" style="margin:0">
+          <select id="gmodel" class="grow"></select>
+          <button class="b ghost" id="gmodels" type="button">Actualiser la liste</button>
+        </div>
+        <div class="hint">La liste n'affiche que les modèles réellement proposés par l'API à ton compte et compatibles avec la conversation. Les quotas gratuits dépendent du modèle et du compte : si tu atteins la limite, choisis un autre modèle ou attends.</div>
+      </div>
+      <div class="msgline" id="gmsg" aria-live="polite"></div>
+      <div class="hint">La clé est stockée sur ce PC, séparément de tes conversations, et n'est jamais renvoyée à cette page. Elle est protégée par ton compte Windows, mais une personne qui contrôle totalement ton PC pourrait toujours l'obtenir.</div>
+    </section>
+
+    <section class="card" id="sec-general">
+      <div class="label">Section B</div>
+      <h3>Général</h3>
+      <label class="switch"><input type="checkbox" id="autostart"><span><b>Lancer Ziggy au démarrage de Windows</b><span class="hint" id="autostartHint">Désactivé par défaut.</span></span></label>
+      <label class="switch"><input type="checkbox" id="tray"><span><b>Afficher l'icône dans la barre des tâches</b><span class="hint" id="trayHint">Permet d'accéder à Ziggy et de le quitter depuis la zone de notification Windows (clic droit sur l'icône).</span></span></label>
+      <div class="field"><label class="label" for="behavior">Comportement au démarrage automatique</label>
+        <select id="behavior"><option value="open">Ouvrir l'interface dans le navigateur</option><option value="background">Rester discret dans la barre des tâches</option></select></div>
+      <div class="row"><button class="b danger" id="quit">Quitter Ziggy</button><span class="hint">Arrête complètement Ziggy (rappels et icône comprise).</span></div>
+      <div class="row"><button class="b ghost" id="resetPrefs">Réinitialiser les préférences</button><span class="hint">Remet à zéro les réglages Général et Voix. Ta mémoire, ta clé et ton modèle sont conservés.</span></div>
+      <div class="msgline" id="smsg" aria-live="polite"></div>
+    </section>
+
+    <section class="card" id="sec-voice">
+      <div class="label">Section C</div>
+      <h3>Voix</h3>
+      <label class="switch"><input type="checkbox" id="stt"><span><b>Reconnaissance vocale (micro)</b><span class="hint">Fournie par le navigateur (Chrome ou Edge) : elle envoie le son à un service en ligne et nécessite Internet.</span></span></label>
+      <label class="switch"><input type="checkbox" id="tts"><span><b>Synthèse vocale (Ziggy lit ses réponses)</b><span class="hint" id="ttsHint">Utilise les voix installées sur cet appareil.</span></span></label>
+      <div class="field"><label class="label" for="voiceSel">Voix française</label>
+        <div class="row" style="margin:0"><select id="voiceSel" class="grow"></select><button class="b ghost" id="voiceTest" type="button">Tester la voix</button></div></div>
+      <div class="row"><label class="label" for="rate" style="min-width:90px">Débit <span id="rateV"></span></label><input type="range" id="rate" min="0.5" max="2" step="0.1"></div>
+      <div class="row"><label class="label" for="vol" style="min-width:90px">Volume <span id="volV"></span></label><input type="range" id="vol" min="0" max="1" step="0.05"></div>
+    </section>
+
+    <section class="card" id="sec-memory">
+      <div class="label">Section D</div>
+      <h3>Mémoire et confidentialité</h3>
+      <div class="hint">Dossier de stockage de tes données (mémoire, historique, paramètres, clé chiffrée, journaux) :</div>
+      <div class="row"><code id="dataDir"></code><button class="b ghost" id="openDir">Ouvrir le dossier</button></div>
+      <div class="hint" id="memStats"></div>
+      <div class="row"><button class="b ghost" id="backup">Sauvegarder la mémoire</button><button class="b ghost" id="showHist">Consulter l'historique</button></div>
+      <div id="hist" class="hist" hidden></div>
+      <div class="row" style="margin-top:18px">
+        <button class="b danger" id="clearHist">Effacer l'historique</button>
+        <span class="hint">Supprime seulement les conversations. Ce que Ziggy a retenu sur toi, tes tâches et tes rappels restent.</span>
+      </div>
+      <div class="row">
+        <button class="b danger" id="wipe">Supprimer toute la mémoire</button>
+        <span class="hint">Supprime les conversations ET les souvenirs de Ziggy. Tâches, rappels, paramètres et clé sont conservés. Une sauvegarde automatique est créée avant chaque suppression.</span>
+      </div>
+      <div class="msgline" id="mmsg" aria-live="polite"></div>
+    </section>
+
+    <section class="card" id="sec-about">
+      <div class="label">Section E</div>
+      <h3>À propos</h3>
+      <div class="hint" id="aboutTxt"></div>
+      <div class="row"><button class="b ghost" id="help">Ouvrir l'aide</button></div>
+    </section>
+  </div>
+</div>
+<div id="toast" hidden></div>
+
+<script>
+const TOKEN=document.querySelector('meta[name=ziggy-token]').content;
+const $=id=>document.getElementById(id);
+const log=$('log'), q=$('q');
+let S=null, SYS=null;            // paramètres et état système venant du serveur
+
+async function api(path,method='GET',body){
+  const opt={method,headers:{'X-Ziggy-Token':TOKEN}};
+  if(method!=='GET'){opt.headers['Content-Type']='application/json';opt.body=JSON.stringify(body||{});}
+  const r=await fetch(path,opt);
+  let j={}; try{j=await r.json();}catch(e){}
+  if(!r.ok && !j.message && !j.reply) j.message='Erreur '+r.status;
+  j._status=r.status; return j;
+}
+function toast(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,3500);}
+function line(id,text,ok){const e=$(id);e.textContent=text||'';e.className='msgline'+(ok===true?' ok':ok===false?' bad':'');}
+
+/* ---------- Conversation ---------- */
+function add(role,text){
+  const d=document.createElement('div'); d.className='msg '+role;
+  const l=document.createElement('span'); l.className='label'; l.textContent=role==='user'?'Vous':'Ziggy';
+  const b=document.createElement('div'); b.className='body'; b.textContent=text;
+  d.append(l,b); log.append(d); log.scrollTop=log.scrollHeight; return b;
+}
+async function loadTasks(){
+  try{
+    const t=await (await fetch('/api/tasks',{headers:{'X-Ziggy-Token':TOKEN}})).json();
+    const box=$('tasks'); box.replaceChildren();
+    if(!Array.isArray(t)||!t.length){const l=document.createElement('div');l.className='label';l.textContent='Aucune tâche';box.append(l);return;}
+    t.forEach(x=>{const d=document.createElement('div');d.className='task';d.append(document.createTextNode(x.title));
+      const s=document.createElement('small');s.textContent='#'+x.id+(x.due?' · '+x.due:'');d.append(s);box.append(d);});
+  }catch(e){}
+}
+function renderPending(list){
+  const box=$('pending'); box.replaceChildren();
+  (list||[]).forEach(p=>{
+    const c=document.createElement('div'); c.className='confirm';
+    const t=document.createElement('div'); t.className='txt';
+    const lab=document.createElement('span'); lab.className='label'; lab.textContent='Confirmation requise';
+    const d=document.createElement('div'); d.textContent=p.description; t.append(lab,d);
+    const ok=document.createElement('button'); ok.className='b'; ok.textContent='Confirmer';
+    const no=document.createElement('button'); no.className='b ghost'; no.textContent='Annuler';
+    const go=async approve=>{ok.disabled=no.disabled=true;
+      const r=await api('/api/pending/'+p.id,'POST',{approve}); add('model',(approve?'✔ ':'✖ ')+(r.result||r.message)); renderPending(r.pending); loadTasks();};
+    ok.onclick=()=>go(true); no.onclick=()=>go(false);
+    c.append(t,ok,no); box.append(c);
+  });
+}
+$('f').onsubmit=async e=>{
+  e.preventDefault(); const m=q.value.trim(); if(!m) return; q.value='';
+  add('user',m); const b=add('model',''); b.classList.add('dots');
+  try{
+    const j=await api('/api/chat','POST',{message:m}); b.classList.remove('dots'); b.textContent=j.reply||j.message||'…'; say(b.textContent);
+    renderPending(j.pending);
+    if(j._status===500 && /clé|Clé/.test(b.textContent)) refreshBanner();
+  }catch(err){ b.classList.remove('dots'); b.textContent='⚠ Ziggy est injoignable : le programme est-il toujours lancé ?'; }
+  loadTasks();
+};
+async function refreshBanner(){ const s=await api('/api/settings'); S=s.settings; SYS=s.system; $('banner').hidden=!!s.gemini.configured; return s; }
+
+/* ---------- Voix ---------- */
+let warnedVoice=false;
+function frVoices(){ return ('speechSynthesis' in window)? speechSynthesis.getVoices().filter(v=>v.lang.toLowerCase().startsWith('fr')) : []; }
+function say(t,force){
+  const v=S&&S.voice; if(!v||!('speechSynthesis' in window)) return;
+  if(!force && !v.tts_enabled) return;
+  const u=new SpeechSynthesisUtterance(t); u.lang='fr-FR'; u.rate=v.rate||1; u.volume=v.volume??1;
+  const list=frVoices(); const chosen=list.find(x=>x.name===v.voice_name)||list[0];
+  if(chosen) u.voice=chosen; else if(!warnedVoice){warnedVoice=true;add('model','🔈 Aucune voix française installée sur cet appareil : la lecture se fera dans une autre langue.');}
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+function applyVoiceUI(){
+  const v=S.voice;
+  $('spk').classList.toggle('on',v.tts_enabled);
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  $('mic').classList.toggle('off',!v.stt_enabled||!SR);
+  $('mic').title=!SR?'Dictée non disponible sur ce navigateur (utilise Chrome ou Edge)':!v.stt_enabled?'Reconnaissance vocale désactivée dans les paramètres':'Dictée vocale (nécessite Internet)';
+}
+$('spk').onclick=async()=>{ const r=await api('/api/settings','POST',{voice:{tts_enabled:!S.voice.tts_enabled}}); if(r.ok){S=r.settings;applyVoiceUI();if(!S.voice.tts_enabled)speechSynthesis.cancel();syncSettingsUI();}else toast(r.message); };
+
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition, mic=$('mic');
+const VOICE_ERR={'network':"🎙 La dictée a besoin d'Internet : le navigateur envoie le son à un service en ligne. Vérifie ta connexion ou écris ta demande.",
+  'not-allowed':"🎙 Micro refusé. Clique sur le cadenas à côté de l'adresse et autorise le micro pour ce site.",
+  'service-not-allowed':"🎙 Le service de dictée est bloqué par le navigateur ou le système.",
+  'audio-capture':"🎙 Aucun micro détecté.", 'no-speech':"🎙 Je n'ai rien entendu, réessaie.",
+  'language-not-supported':"🎙 Le français n'est pas disponible pour la dictée sur ce navigateur."};
+if(SR){
+  const rec=new SR(); rec.lang='fr-FR';
+  rec.onresult=e=>{ q.value=e.results[0][0].transcript; $('f').requestSubmit(); };
+  rec.onerror=e=>{ if(e.error!=='aborted') add('model',VOICE_ERR[e.error]||('🎙 Erreur de dictée : '+e.error)); };
+  rec.onend=()=>mic.classList.remove('on');
+  mic.onclick=()=>{
+    if(S&&!S.voice.stt_enabled){add('model','🎙 La reconnaissance vocale est désactivée dans Paramètres → Voix.');return;}
+    if(!navigator.onLine){add('model',VOICE_ERR.network);return;}
+    try{mic.classList.add('on');rec.start();}catch(err){mic.classList.remove('on');}
+  };
+}else mic.onclick=()=>add('model',"🎙 Ce navigateur ne gère pas la dictée vocale. Utilise Chrome ou Edge, ou écris ta demande.");
+
+/* ---------- Paramètres ---------- */
+const PILL={connected:'ok',quota:'warn',network:'warn',service:'warn',missing:'',unknown:'',invalid:'bad',denied:'bad',model:'bad',error:'bad'};
+function setPill(status,label,detail){const p=$('gpill');p.className='pill '+(PILL[status]||'');$('glabel').textContent=label;$('gdetail').textContent=detail||'';}
+function syncSettingsUI(){
+  if(!S) return;
+  $('autostart').checked=S.autostart; $('tray').checked=S.tray; $('behavior').value=S.startup_behavior;
+  $('stt').checked=S.voice.stt_enabled; $('tts').checked=S.voice.tts_enabled;
+  $('rate').value=S.voice.rate; $('vol').value=S.voice.volume; $('rateV').textContent='×'+S.voice.rate.toFixed(1); $('volV').textContent=Math.round(S.voice.volume*100)+' %';
+  if(SYS){
+    $('autostart').disabled=!SYS.autostart_supported; $('autostartHint').textContent=SYS.autostart_supported?'Désactivé par défaut. Ziggy se lance à l\'ouverture de ta session (sans droits administrateur).':'Disponible seulement dans Ziggy installé sous Windows.';
+    $('tray').disabled=!SYS.tray_supported; $('trayHint').textContent=SYS.tray_supported?'Permet de rouvrir Ziggy ou de le quitter depuis la zone de notification.':'Disponible seulement dans Ziggy installé sous Windows.';
+    $('behavior').disabled=!SYS.tray_supported && true;
+    $('dataDir').textContent=SYS.data_dir;
+  }
+}
+function fillVoices(){
+  const sel=$('voiceSel'), list=frVoices(); sel.replaceChildren();
+  if(!list.length){const o=document.createElement('option');o.textContent='Aucune voix française installée';o.value='';sel.append(o);sel.disabled=true;$('ttsHint').textContent='Aucune voix française détectée sur cet appareil : ajoute-en une dans les paramètres de langue de Windows.';return;}
+  sel.disabled=false; list.forEach(v=>{const o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')';sel.append(o);});
+  if(S&&S.voice.voice_name&&list.some(v=>v.name===S.voice.voice_name)) sel.value=S.voice.voice_name;
+}
+if('speechSynthesis' in window) speechSynthesis.onvoiceschanged=fillVoices;
+
+async function loadSettings(){
+  const r=await api('/api/settings'); S=r.settings; SYS=r.system;
+  const g=r.gemini;
+  $('banner').hidden=!!g.configured;
+  if(!g.configured) setPill('missing','Clé manquante','Aucune clé enregistrée.');
+  else if(g.last_test) setPill(g.last_test.status,g.last_test.label,g.last_test.message);
+  else setPill('unknown','Clé enregistrée','Pas encore testée : clique sur « Tester la connexion ».');
+  $('gsaved').textContent=g.configured?('Clé '+(g.source==='stockage'?'enregistrée'+(g.last4?' (••••'+g.last4+')':''):'fournie par la variable d\'environnement GEMINI_API_KEY')+' — protection : '+g.protection+'.'):'Aucune clé : colle-la ci-dessus puis clique sur Enregistrer.';
+  const gm=$('gmodel'); if(![...gm.options].some(o=>o.value===g.model)){gm.replaceChildren();const o=document.createElement('option');o.value=g.model;o.textContent=g.model+' (actuel)';gm.append(o);} gm.value=g.model;
+  $('memStats').textContent=r.memory.messages+' message(s) · '+r.memory.souvenirs+' souvenir(s) · '+r.memory.taches+' tâche(s) · '+r.memory.rappels+' rappel(s) à venir';
+  $('aboutTxt').textContent='Ziggy '+document.querySelector('meta[name=ziggy-version]').content+' · modèle configuré : '+g.model+' · état Gemini : '+(g.last_test?g.last_test.label:(g.configured?'clé enregistrée, non testée':'clé manquante'))+(r.apps.length?' · applications : '+r.apps.join(', '):'');
+  syncSettingsUI(); applyVoiceUI(); fillVoices();
+  return r;
+}
+async function openSettings(){ $('settings').hidden=false; document.body.style.overflow='hidden'; await loadSettings(); }
+function closeSettings(){ $('settings').hidden=true; document.body.style.overflow=''; $('gkey').value=''; $('gkey').type='password'; $('gshow').textContent='Afficher'; }
+$('gear').onclick=openSettings; $('bannerBtn').onclick=openSettings; $('sclose').onclick=closeSettings;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('settings').hidden)closeSettings();});
+
+$('gshow').onclick=()=>{const k=$('gkey');const show=k.type==='password';k.type=show?'text':'password';$('gshow').textContent=show?'Masquer':'Afficher';};
+$('gsave').onclick=async()=>{
+  const key=$('gkey').value.trim(); if(!key){line('gmsg','Colle d\'abord ta clé dans le champ.',false);return;}
+  const r=await api('/api/gemini/key','POST',{key}); line('gmsg',r.message,!!r.ok);
+  if(r.ok){$('gkey').value='';$('gkey').type='password';$('gshow').textContent='Afficher';await loadSettings();toast('Clé enregistrée');}
+};
+$('gtest').onclick=async()=>{
+  const typed=$('gkey').value.trim(); setPill('unknown','Test en cours…',''); line('gmsg','Connexion à Gemini…');
+  const r=await api('/api/gemini/test','POST',{key:typed||undefined,model:$('gmodel').value||undefined});
+  setPill(r.status,r.label,''); line('gmsg',(typed?'(clé saisie, non enregistrée) ':'')+r.message+(r.latency_ms?' ('+r.latency_ms+' ms)':''),r.status==='connected');
+  if(!typed) await loadSettings();
+};
+$('gdel').onclick=async()=>{
+  if(!confirm('Supprimer la clé Gemini enregistrée ? Ziggy ne pourra plus répondre tant que tu n\'en ajoutes pas une autre.')) return;
+  const r=await api('/api/gemini/key','DELETE'); line('gmsg',r.message,!!r.ok); await loadSettings();
+};
+$('gmodels').onclick=async()=>{
+  line('gmsg','Récupération de la liste des modèles…');
+  const r=await api('/api/gemini/models','POST',{key:$('gkey').value.trim()||undefined});
+  if(!r.models||!r.models.length){line('gmsg',r.message,false);setPill(r.status,r.status==='missing'?'Clé manquante':r.status,'');return;}
+  const gm=$('gmodel'); gm.replaceChildren(); r.models.forEach(m=>{const o=document.createElement('option');o.value=m.name;o.textContent=m.display_name+' — '+m.name;gm.append(o);});
+  if(r.models.some(m=>m.name===r.current)) gm.value=r.current;
+  else if(r.suggested){ // le modèle configuré n'existe plus (ex : gemini-2.5-*, arrêtés par Google) : choix automatique
+    const rr=await api('/api/settings','POST',{model:r.suggested}); gm.value=r.suggested;
+    line('gmsg','Le modèle « '+r.current+' » n\'est plus disponible sur ton compte : Ziggy a choisi « '+r.suggested+' » automatiquement. Clique sur « Tester la connexion ».',!!rr.ok); return;
+  }
+  line('gmsg',r.message,true);
+};
+$('gmodel').onchange=async()=>{ const r=await api('/api/settings','POST',{model:$('gmodel').value}); line('gmsg',r.ok?'Modèle enregistré : '+$('gmodel').value+'. Clique sur « Tester la connexion » pour le vérifier.':r.message,!!r.ok); if(r.ok)S=r.settings; };
+
+async function save(patch,msgId){
+  const r=await api('/api/settings','POST',patch); line(msgId||'smsg',r.message,!!r.ok);
+  if(r.ok){S=r.settings;SYS=r.system;} else {await loadSettings();}
+  syncSettingsUI(); applyVoiceUI(); return r;
+}
+$('autostart').onchange=()=>save({autostart:$('autostart').checked});
+$('tray').onchange=()=>save({tray:$('tray').checked});
+$('quit').onclick=async()=>{ if(!confirm('Quitter complètement Ziggy ?')) return; const r=await api('/api/quit','POST',{confirm:true}); line('smsg',r.message,!!r.ok); };
+$('behavior').onchange=()=>save({startup_behavior:$('behavior').value});
+$('stt').onchange=()=>save({voice:{stt_enabled:$('stt').checked}});
+$('tts').onchange=()=>save({voice:{tts_enabled:$('tts').checked}});
+$('voiceSel').onchange=()=>save({voice:{voice_name:$('voiceSel').value}});
+let dbt; const deb=(fn)=>{clearTimeout(dbt);dbt=setTimeout(fn,350);};
+$('rate').oninput=()=>{$('rateV').textContent='×'+(+$('rate').value).toFixed(1);deb(()=>save({voice:{rate:+$('rate').value}}));};
+$('vol').oninput=()=>{$('volV').textContent=Math.round($('vol').value*100)+' %';deb(()=>save({voice:{volume:+$('vol').value}}));};
+$('voiceTest').onclick=()=>say('Bonjour, je suis Ziggy. Voici ma voix.',true);
+$('resetPrefs').onclick=async()=>{ if(!confirm('Réinitialiser les préférences Général et Voix ? Ta mémoire, ta clé et ton modèle sont conservés.'))return;
+  const r=await api('/api/settings/reset','POST'); line('smsg',r.message,!!r.ok); if(r.ok){S=r.settings;SYS=r.system;syncSettingsUI();applyVoiceUI();} };
+
+$('openDir').onclick=async()=>{const r=await api('/api/open-data-dir','POST'); line('mmsg',r.ok?'Dossier ouvert.':r.message,!!r.ok);};
+$('backup').onclick=async()=>{const r=await api('/api/memory/backup','POST'); line('mmsg',r.message,!!r.ok);};
+$('showHist').onclick=async()=>{
+  const h=$('hist'); h.hidden=!h.hidden; if(h.hidden) return;
+  const list=await (await fetch('/api/history?limit=100',{headers:{'X-Ziggy-Token':TOKEN}})).json(); h.replaceChildren();
+  if(!list.length){h.textContent='Historique vide.';return;}
+  list.forEach(m=>{const d=document.createElement('div');const s=document.createElement('small');s.textContent=(m.role==='user'?'Vous':'Ziggy')+' · '+m.ts;d.append(s,document.createTextNode(m.content));h.append(d);});
+};
+$('clearHist').onclick=async()=>{
+  if(!confirm('Effacer tout l\'historique des conversations ?\n\nCe que Ziggy a retenu sur toi sera conservé. Une sauvegarde automatique est créée avant.'))return;
+  const r=await api('/api/memory/clear-history','POST',{confirm:true}); line('mmsg',r.message,!!r.ok); if(r.ok){log.replaceChildren();add('model','Historique effacé.');loadSettings();}
+};
+$('wipe').onclick=async()=>{
+  const t=prompt('SUPPRESSION DE TOUTE LA MÉMOIRE\n\nConversations ET souvenirs seront effacés (une sauvegarde automatique est créée avant).\nTape SUPPRIMER en majuscules pour confirmer :');
+  if(t===null)return; const r=await api('/api/memory/wipe','POST',{confirm:t}); line('mmsg',r.message,!!r.ok); if(r.ok){log.replaceChildren();add('model','Mémoire supprimée.');loadSettings();}
+};
+$('help').onclick=()=>window.open('/aide','_blank','noopener');
+
+/* ---------- Démarrage ---------- */
+setInterval(async()=>{ try{
+  const r=await (await fetch('/api/reminders',{headers:{'X-Ziggy-Token':TOKEN}})).json();
+  (Array.isArray(r)?r:[]).forEach(t=>{const txt=(t.missed?'⏰ Rappel manqué : ':'⏰ Rappel : ')+t.text;add('model',txt);say(txt);
+    if('Notification' in window&&Notification.permission==='granted')new Notification('Ziggy',{body:t.text});});
+  const p=await (await fetch('/api/pending',{headers:{'X-Ziggy-Token':TOKEN}})).json(); if(Array.isArray(p)&&$('pending').children.length!==p.length) renderPending(p);
+}catch(e){} },5000);
+if('Notification' in window&&Notification.permission==='default') Notification.requestPermission();
+
+(async()=>{
+  try{
+    const s=await refreshBanner(); applyVoiceUI();
+    const h=await (await fetch('/api/history?limit=60',{headers:{'X-Ziggy-Token':TOKEN}})).json();
+    if(Array.isArray(h)&&h.length) h.forEach(m=>add(m.role,m.content));
+    else add('model',s.gemini.configured?"Bonjour. Je suis Ziggy. Dites-moi ce que vous souhaitez organiser.":"Bonjour. Je suis Ziggy. Pour commencer, ouvrez les paramètres (⚙) et ajoutez votre clé Gemini.");
+    renderPending(await (await fetch('/api/pending',{headers:{'X-Ziggy-Token':TOKEN}})).json());
+  }catch(e){ add('model','⚠ Impossible de joindre Ziggy. Recharge la page.'); }
+  loadTasks();
+  if(location.hash==='#settings') openSettings();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# Outils pour tester et compiler (pas nécessaires à l'utilisateur final : l'application compilée embarque tout)
+-r requirements.txt
+pyinstaller>=6.0,<7        # compilation en Ziggy.exe (mode dossier)
+pytest>=8.0,<10            # tests
+numpy>=1.26,<3             # uniquement pour tools/make_icon.py (régénérer l'icône)
