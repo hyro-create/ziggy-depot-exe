@@ -1,0 +1,36 @@
+name: Construire Ziggy pour Windows
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construire:
+    runs-on: windows-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compiler et tester Ziggy
+        shell: cmd
+        run: |
+          set ZIGGY_NOPAUSE=1
+          call build.bat
+
+      - name: Publier les fichiers compilés
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ziggy-Windows
+          path: |
+            dist/Ziggy/
+          if-no-files-found: error
