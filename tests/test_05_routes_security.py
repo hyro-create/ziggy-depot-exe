@@ -97,7 +97,10 @@ def test_parametres_roundtrip_et_validation(app, api, restart):
     assert s["voice"]["rate"] == 1.4 and s["voice"]["tts_enabled"] and s["voice"]["voice_name"] == "Hortense"
 
 
-def test_options_windows_refusees_proprement_hors_windows(app, api):
+def test_options_windows_refusees_proprement_hors_windows(app, api, monkeypatch):
+    # Ce test vérifie le comportement hors Windows : le simuler explicitement
+    # évite qu'il dépende du système utilisé par GitHub Actions pour les tests.
+    monkeypatch.setattr(app.si, "tray_supported", lambda: False)
     r = api.post("/api/settings", {"autostart": True})
     assert r.status_code == 409 and "Windows" in r.json["message"]
     r = api.post("/api/settings", {"startup_behavior": "background"})
